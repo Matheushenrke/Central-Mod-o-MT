@@ -94,6 +94,11 @@ export const PlayerBar: React.FC<PlayerBarProps> = ({
             <p className="text-xs text-slate-400 truncate mt-0.5">
               {currentStation.frequency} • {currentStation.city}, {currentStation.state}
             </p>
+            {streamStatusText && (
+              <p className="text-[10px] text-slate-500 truncate mt-1">
+                {streamStatusText}
+              </p>
+            )}
           </div>
         </div>
 
