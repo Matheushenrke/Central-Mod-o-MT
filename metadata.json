@@ -1,0 +1,6 @@
+{
+  "name": "Central Modão & Rádios MT",
+  "description": "Player de Rádios Ao Vivo de Mato Grosso e Sertanejas do Brasil.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
