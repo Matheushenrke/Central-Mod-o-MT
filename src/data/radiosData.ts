@@ -229,3 +229,36 @@ export const RADIOS_NACIONAL: RadioStation[] = [
 
 export const ALL_RADIOS: RadioStation[] = [...RADIOS_MT, ...RADIOS_NACIONAL];
 
+export const CAUSOS_DATA = [
+  {
+    id: 'causo-1',
+    title: 'O Lobisomem de Chapada dos Guimarães',
+    author: 'Compadre Zé do Barreiro',
+    category: 'Misterioso',
+    desc: 'Conta a lenda do sereno da serra de Chapada quando a lua cheia clareia os paredões de pedra.',
+    duration: '3 min',
+    cover: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=400&auto=format&fit=crop&q=80',
+    fullStory: 'Era uma noite de sexta-feira de quaresma lá pros lados da Salgadeira. O compadre Tonho vinha descendo a serra de mulo carregado de manga e pequi. De repente, o bicho empacou, levantou as orelhas e soltou um resfolego. Do mato fechado saiu uma criatura alta, de pernas compridas e olhos faiscando igual brasa de fogão a lenha... O compadre agarrou o rosário, fez o sinal da cruz e gritou: "Em nome do Pai, vai pro rumo da sua terra!" O bicho deu um uivo de tremer o vale e sumiu na mata escuro adentro!'
+  },
+  {
+    id: 'causo-2',
+    title: 'A Viola Enfeitiçada do Pantanal',
+    author: 'Nhô Bento da Barra',
+    category: 'Relíquia',
+    desc: 'O mistério do violeiro que aprendeu o ponteio com o próprio vento do Pantanal de Poconé.',
+    duration: '4 min',
+    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80',
+    fullStory: 'Dizem lá pras bandas de Poconé que tinha um violeiro chamado Tião Caboclo. A viola dele tinha 10 cordas de aço puro. Numa noite de tempestade no pesqueiro, Tião afinou o instrumento na afinação do Diabo (Rio Abaixo). A cada ponteada, os jacarés do corixo saíam da água pra escutar! Até hoje, nas noites calmas no rio Cuiabá, escuta-se o eco desse ponteio chorando suave na brisa.'
+  },
+  {
+    id: 'causo-3',
+    title: 'O Tereré da Madrugada',
+    author: 'Penélope Locutor',
+    category: 'Humor & Causo',
+    desc: 'Um causo divertido do viajante que parou no posto da BR-163 em Rondonópolis.',
+    duration: '2 min',
+    cover: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&auto=format&fit=crop&q=80',
+    fullStory: 'Chegou um forasteiro num posto de Rondonópolis às 3 horas da manhã com um calor de 40 graus na sombra. Viu a turma reunida em volta da cuia de tereré com erva mate bem verde e gelo de cachoeira. Tomou um gole fundo achando que era chá doce... deu um espirro que acordou os galos do vizinho! Depois disso virou mato-grossense da gema e não larga a cuia por nada nesse mundo!'
+  }
+];
+

@@ -45,4 +45,4 @@ export interface LocutorMessage {
   timestamp: string;
 }
 
-export type TabType = 'radios' | 'favoritas';
+export type TabType = 'radios' | 'favoritas' | 'locutor' | 'causos';

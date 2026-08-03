@@ -12,6 +12,8 @@ import { RADIOS_MT, RADIOS_NACIONAL, ALL_RADIOS } from './data/radiosData';
 import { Header } from './components/Header';
 import { StationCard } from './components/StationCard';
 import { PlayerBar } from './components/PlayerBar';
+import { LocutorView } from './components/LocutorView';
+import { CausosView } from './components/CausosView';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('radios');
@@ -34,9 +36,40 @@ export default function App() {
   const [isBuffering, setIsBuffering] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.85);
   const [streamStatusText, setStreamStatusText] = useState<string>('');
+  const [sleepMinutes, setSleepMinutes] = useState<number | null>(null);
 
-  // Audio HTML5 element ref
+  // Audio HTML5 element ref & Timer ref
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle Sleep Timer
+  const handleSetSleepTimer = (minutes: number | null) => {
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+      sleepTimerRef.current = null;
+    }
+
+    setSleepMinutes(minutes);
+
+    if (minutes && minutes > 0) {
+      sleepTimerRef.current = setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        setIsPlaying(false);
+        setSleepMinutes(null);
+      }, minutes * 60 * 1000);
+    }
+  };
+
+  // Clean up sleep timer on unmount
+  useEffect(() => {
+    return () => {
+      if (sleepTimerRef.current) {
+        clearTimeout(sleepTimerRef.current);
+      }
+    };
+  }, []);
 
   // Save favorites to localStorage
   useEffect(() => {
@@ -196,67 +229,66 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
         
-        {/* Search & Category Filter */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar rádio por nome, cidade ou frequência..."
-              className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-amber-500 rounded-xl py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-200 placeholder-slate-500 outline-none transition"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-200 text-xs bg-slate-800 px-2 py-0.5 rounded"
-              >
-                Limpar
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setSelectedCategory('todas')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
-                selectedCategory === 'todas'
-                  ? 'bg-amber-500 text-slate-950 border-amber-400'
-                  : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              Todas
-            </button>
-
-            <button
-              onClick={() => setSelectedCategory('mt')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
-                selectedCategory === 'mt'
-                  ? 'bg-amber-500 text-slate-950 border-amber-400'
-                  : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              Mato Grosso
-            </button>
-
-            <button
-              onClick={() => setSelectedCategory('nacional')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
-                selectedCategory === 'nacional'
-                  ? 'bg-amber-500 text-slate-950 border-amber-400'
-                  : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
-              }`}
-            >
-              Sertanejas & Nacionais
-            </button>
-          </div>
-        </div>
-
         {/* Tab 1: All Live Stations */}
         {activeTab === 'radios' && (
-          <div className="space-y-8">
-            
+          <div className="space-y-6">
+            {/* Search & Category Filter */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar rádio por nome, cidade ou frequência (ex: 99.9, Cuiabá)..."
+                  className="w-full bg-slate-900/90 border border-slate-800/80 focus:border-amber-500 rounded-xl py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-200 placeholder-slate-500 outline-none transition shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-200 text-xs bg-slate-800 px-2 py-0.5 rounded"
+                  >
+                    Limpar
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <button
+                  onClick={() => setSelectedCategory('todas')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                    selectedCategory === 'todas'
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold'
+                      : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                >
+                  Todas
+                </button>
+
+                <button
+                  onClick={() => setSelectedCategory('mt')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                    selectedCategory === 'mt'
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold'
+                      : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                >
+                  Mato Grosso
+                </button>
+
+                <button
+                  onClick={() => setSelectedCategory('nacional')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                    selectedCategory === 'nacional'
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-extrabold'
+                      : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                >
+                  Sertanejas & Nacionais
+                </button>
+              </div>
+            </div>
+
             {/* Mato Grosso Stations Section */}
             {filteredMT.length > 0 && (
               <section className="space-y-3">
@@ -387,6 +419,16 @@ export default function App() {
           </div>
         )}
 
+        {/* Tab 3: Locutor IA */}
+        {activeTab === 'locutor' && (
+          <LocutorView currentStation={currentStation} />
+        )}
+
+        {/* Tab 4: Causos MT */}
+        {activeTab === 'causos' && (
+          <CausosView />
+        )}
+
       </main>
 
       {/* Persistent Player Bar */}
@@ -404,9 +446,12 @@ export default function App() {
         }}
         audioRef={audioRef}
         streamStatusText={streamStatusText}
+        sleepMinutes={sleepMinutes}
+        onSetSleepTimer={handleSetSleepTimer}
       />
 
     </div>
   );
 }
+
 
