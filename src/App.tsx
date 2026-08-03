@@ -15,6 +15,8 @@ import { StationCard } from './components/StationCard';
 import { PlayerBar } from './components/PlayerBar';
 import { LocutorView } from './components/LocutorView';
 import { CausosView } from './components/CausosView';
+import { FmTunerDial } from './components/FmTunerDial';
+import { SoundboardWidget } from './components/SoundboardWidget';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('radios');
@@ -280,6 +282,19 @@ export default function App() {
         {/* Tab 1: All Live Stations */}
         {activeTab === 'radios' && (
           <div className="space-y-6">
+            {/* Tuner Dial & Soundboard Widgets */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <FmTunerDial
+                  currentStation={currentStation}
+                  onPlayStation={handlePlayStation}
+                />
+              </div>
+              <div>
+                <SoundboardWidget />
+              </div>
+            </div>
+
             {/* Search & Category Filter */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="relative flex-1">
