@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import {
   Search,
   Radio,
@@ -41,6 +42,14 @@ export default function App() {
   // Audio HTML5 element ref & Timer ref
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
+  const cleanupHls = () => {
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+  };
 
   // Handle Sleep Timer
   const handleSetSleepTimer = (minutes: number | null) => {
@@ -104,15 +113,10 @@ export default function App() {
     };
 
     const handleError = () => {
+      cleanupHls();
       setIsBuffering(false);
       setIsPlaying(false);
-      setStreamStatusText('Reconectando...');
-
-      if (currentStation && currentStation.backupStreamUrl && audio.src !== currentStation.backupStreamUrl) {
-        audio.src = currentStation.backupStreamUrl;
-        audio.load();
-        audio.play().catch(() => {});
-      }
+      setStreamStatusText('Sinal indisponível. Tente outra estação ou atualize a página.');
     };
 
     audio.addEventListener('waiting', handleWaiting);
@@ -128,27 +132,71 @@ export default function App() {
     };
   }, [currentStation, volume]);
 
+  // Clean up HLS engine when the app unloads
+  useEffect(() => {
+    return () => cleanupHls();
+  }, []);
+
   // Play a radio station
   const handlePlayStation = (station: RadioStation) => {
     setCurrentStation(station);
     setIsBuffering(true);
+    setStreamStatusText('Carregando estação...');
 
-    if (audioRef.current) {
-      audioRef.current.src = station.streamUrl;
-      audioRef.current.load();
-      audioRef.current
-        .play()
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+
+    cleanupHls();
+    audio.pause();
+    audio.src = '';
+    audio.load();
+
+    const playAudio = () => {
+      audio.play()
         .then(() => {
           setIsPlaying(true);
           setIsBuffering(false);
+          setStreamStatusText('Ao vivo');
         })
         .catch(() => {
-          if (station.backupStreamUrl) {
-            audioRef.current!.src = station.backupStreamUrl;
-            audioRef.current!.load();
-            audioRef.current!.play().catch(() => {});
+          setIsBuffering(false);
+          setStreamStatusText('Autoplay bloqueado. Clique em play.');
+        });
+    };
+
+    if (station.streamType === 'hls') {
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hlsRef.current = hls;
+        hls.attachMedia(audio);
+
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          hls.loadSource(station.streamUrl);
+        });
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          playAudio();
+        });
+
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            cleanupHls();
+            setIsBuffering(false);
+            setStreamStatusText('Sinal HLS indisponível. Tente outra estação.');
           }
         });
+      } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = station.streamUrl;
+        audio.load();
+        playAudio();
+      } else {
+        setIsBuffering(false);
+        setStreamStatusText('Seu navegador não suporta HLS.');
+      }
+    } else {
+      audio.src = station.streamUrl;
+      audio.load();
+      playAudio();
     }
   };
 

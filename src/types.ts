@@ -9,11 +9,14 @@ export interface RadioStation {
   cover: string;
   fallbackCover: string;
   streamUrl: string;
+  streamType?: 'audio' | 'hls';
   backupStreamUrl?: string;
   tags: string[];
   dialMhz: number;
   liveProgram: string;
   locutor: string;
+  sourceUrl?: string;
+  verification?: string;
 }
 
 export interface CausoItem {
